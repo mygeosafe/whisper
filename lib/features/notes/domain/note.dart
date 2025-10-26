@@ -15,6 +15,7 @@ class Note {
     required this.audioFile,
     required this.tags,
     required this.deviceId,
+    required this.ownerId,
   });
 
   factory Note.empty() => Note(
@@ -27,6 +28,7 @@ class Note {
         audioFile: '',
         tags: const [],
         deviceId: 'unknown',
+        ownerId: '',
       );
 
   factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
@@ -37,9 +39,13 @@ class Note {
   final String transcript;
   final String summary;
   final List<String> reflections;
+  @JsonKey(name: 'audio_file')
   final String audioFile;
   final List<String> tags;
+  @JsonKey(name: 'device_id')
   final String deviceId;
+  @JsonKey(name: 'owner_id')
+  final String ownerId;
 
   Map<String, dynamic> toJson() => _$NoteToJson(this);
 
@@ -53,6 +59,7 @@ class Note {
     String? audioFile,
     List<String>? tags,
     String? deviceId,
+    String? ownerId,
   }) {
     return Note(
       id: id ?? this.id,
@@ -64,6 +71,7 @@ class Note {
       audioFile: audioFile ?? this.audioFile,
       tags: tags ?? this.tags,
       deviceId: deviceId ?? this.deviceId,
+      ownerId: ownerId ?? this.ownerId,
     );
   }
 
@@ -79,7 +87,8 @@ class Note {
         const ListEquality<String>().equals(other.reflections, reflections) &&
         other.audioFile == audioFile &&
         const ListEquality<String>().equals(other.tags, tags) &&
-        other.deviceId == deviceId;
+        other.deviceId == deviceId &&
+        other.ownerId == ownerId;
   }
 
   @override
@@ -93,5 +102,6 @@ class Note {
         audioFile,
         const ListEquality<String>().hash(tags),
         deviceId,
+        ownerId,
       );
 }
