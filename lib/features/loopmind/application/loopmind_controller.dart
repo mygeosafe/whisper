@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ai/application/ai_models.dart';
-import '../../ai/services/ai_service.dart';
-import '../../audio/application/audio_capture_controller.dart';
-import '../../notes/application/notes_controller.dart';
-import '../../notes/domain/note.dart';
+import 'package:whispair_loopmind/features/ai/services/ai_service.dart';
+import 'package:whispair_loopmind/features/auth/application/auth_controller.dart';
+import 'package:whispair_loopmind/features/audio/application/audio_capture_controller.dart';
+import 'package:whispair_loopmind/features/notes/application/notes_controller.dart';
+import 'package:whispair_loopmind/features/notes/domain/note.dart';
 
 final loopMindControllerProvider =
     StateNotifierProvider<LoopMindController, LoopMindState>(
@@ -76,6 +77,7 @@ class LoopMindController extends StateNotifier<LoopMindState> {
     final ai = _ref.read(aiServiceProvider);
     final transcript = await ai.transcribeAudio(capture.opusPath!);
     final insights = await ai.summarise(transcript);
+    final user = _ref.read(authStateProvider).value;
     final note = Note(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       createdAt: DateTime.now(),
@@ -86,10 +88,11 @@ class LoopMindController extends StateNotifier<LoopMindState> {
       audioFile: capture.opusPath!,
       tags: const ['captured'],
       deviceId: 'Whispair-LoopMind',
+      ownerId: user?.id ?? '',
     );
-    await _ref.read(notesControllerProvider.notifier).save(note);
+    final savedNote = await _ref.read(notesControllerProvider.notifier).save(note);
     state = state.copyWith(
-      currentNote: note,
+      currentNote: savedNote,
       insights: insights,
     );
   }
