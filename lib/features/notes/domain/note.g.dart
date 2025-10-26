@@ -11,9 +11,10 @@ Note _$NoteFromJson(Map<String, dynamic> json) => Note(
       reflections: (json['reflections'] as List<dynamic>)
           .map((dynamic e) => e as String)
           .toList(),
-      audioFile: json['audio_file'] as String? ?? json['audioFile'] as String,
+      audioFile: json['audio_file'] as String? ?? json['audioFile'] as String? ?? '',
       tags: (json['tags'] as List<dynamic>).map((dynamic e) => e as String).toList(),
-      deviceId: json['device_id'] as String? ?? json['deviceId'] as String,
+      deviceId: json['device_id'] as String? ?? json['deviceId'] as String? ?? 'unknown',
+      ownerId: json['owner_id'] as String? ?? json['ownerId'] as String? ?? '',
     );
 
 Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
@@ -26,4 +27,5 @@ Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
       'audio_file': instance.audioFile,
       'tags': instance.tags,
       'device_id': instance.deviceId,
+      'owner_id': instance.ownerId,
     };
