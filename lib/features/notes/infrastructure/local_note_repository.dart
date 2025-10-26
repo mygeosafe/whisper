@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../domain/note.dart';
+import 'note_repository.dart';
 
 final localNoteRepositoryProvider = Provider<LocalNoteRepository>((ref) {
   return LocalNoteRepository(
@@ -14,7 +15,7 @@ final localNoteRepositoryProvider = Provider<LocalNoteRepository>((ref) {
   );
 });
 
-class LocalNoteRepository {
+class LocalNoteRepository implements NoteRepository {
   LocalNoteRepository({required FlutterSecureStorage secureStorage})
       : _secureStorage = secureStorage;
 
@@ -24,6 +25,7 @@ class LocalNoteRepository {
   final FlutterSecureStorage _secureStorage;
   Box<Map<dynamic, dynamic>>? _box;
 
+  @override
   Future<void> init() async {
     await Hive.initFlutter();
     final key = await _obtainEncryptionKey();
@@ -41,6 +43,7 @@ class LocalNoteRepository {
     return box.listenable();
   }
 
+  @override
   Future<List<Note>> loadAll() async {
     final box = _box;
     if (box == null) return [];
@@ -50,6 +53,7 @@ class LocalNoteRepository {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
+  @override
   Future<Note?> getById(String id) async {
     final box = _box;
     if (box == null) return null;
@@ -58,20 +62,32 @@ class LocalNoteRepository {
     return Note.fromJson(Map<String, dynamic>.from(data));
   }
 
-  Future<void> save(Note note) async {
+  @override
+  Future<Note> save(Note note) async {
     final box = _box;
     if (box == null) {
       throw StateError('Repository not initialised');
     }
     await box.put(note.id, note.toJson());
+    return note;
   }
 
+  @override
   Future<void> delete(String id) async {
     final box = _box;
     if (box == null) {
       throw StateError('Repository not initialised');
     }
     await box.delete(id);
+  }
+
+  @override
+  Future<void> deleteAllForCurrentUser() async {
+    final box = _box;
+    if (box == null) {
+      throw StateError('Repository not initialised');
+    }
+    await box.clear();
   }
 
   Future<List<int>> _obtainEncryptionKey() async {
